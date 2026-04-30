@@ -1,0 +1,72 @@
+@startuml name
+' Diagrama de Classes
+package "Model" {
+    class Usuario {
+        +id: int
+        +nome: str
+        +email: str
+    }
+}
+
+package "Repository" {
+    class UsuarioRepository {
+        +salvar(usuario: Usuario)
+        +listar(): List<Usuario>
+        +buscar_por_id(id: int): Usuario
+    }
+}
+
+package "Service" {
+    class UsuarioService {
+        +criar_usuario(nome, email)
+        +listar_usuarios()
+        +consultar_usuario(id)
+    }
+}
+
+package "Controller" {
+    class UsuarioController {
+        +request_cadastro()
+        +request_listagem()
+        +request_consulta(id)
+    }
+}
+
+package "View" {
+    class UsuarioView {
+        +exibir_menu()
+        +obter_dados()
+        +mostrar_lista(usuarios)
+    }
+}
+
+UsuarioView --> UsuarioController
+UsuarioController --> UsuarioService
+UsuarioService --> UsuarioRepository
+UsuarioRepository ..> Usuario : gerencia
+
+@enduml
+
+@startuml names
+' Diagrama de Sequência: Criar Usuário
+actor Atendente
+participant View
+participant Controller
+participant Service
+participant Repository
+database SQLite
+
+Atendente -> View: Seleciona "Criar Usuário"
+View -> Controller: request_cadastro()
+Controller -> View: obter_dados()
+View --> Controller: nome, email
+Controller -> Service: criar_usuario(nome, email)
+Service -> Service: validar_email(email)
+Service -> Repository: salvar(usuario)
+Repository -> SQLite: INSERT INTO...
+SQLite --> Repository: OK
+Repository --> Service: OK
+Service --> Controller: Sucesso
+Controller -> View: mostrar_mensagem("Sucesso")
+View -> Atendente: Exibe confirmação
+@enduml
